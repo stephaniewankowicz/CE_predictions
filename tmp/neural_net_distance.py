@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
-
-# In[399]:
-
-
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -27,10 +22,8 @@ device = torch.device("cpu")
 # In[218]:
 
 
-RES_MAX_ACC = {'A': 129.0, 'R': 274.0, 'N': 195.0, 'D': 193.0,                'C': 167.0, 'Q': 225.0, 'E': 223.0, 'G': 104.0,                 'H': 224.0, 'I': 197.0, 'L': 201.0, 'K': 236.0,                 'M': 224.0, 'F': 240.0, 'P': 159.0, 'S': 155.0,                 'T': 172.0, 'W': 285.0, 'Y': 263.0, 'V': 174.0} 
+RES_MAX_ACC = {'A': 129.0, 'R': 274.0, 'N': 195.0, 'D': 193.0,'C': 167.0, 'Q': 225.0, 'E': 223.0, 'G': 104.0,'H': 224.0, 'I': 197.0, 'L': 201.0, 'K': 236.0,                 'M': 224.0, 'F': 240.0, 'P': 159.0, 'S': 155.0,                 'T': 172.0, 'W': 285.0, 'Y': 263.0, 'V': 174.0} 
 
-
-# In[219]:
 
 
 def create_AH_key(AH_pairs):
@@ -43,10 +36,6 @@ def create_AH_key(AH_pairs):
     AH_key = pd.concat([AH_key1, AH_key2])
     return AH_key
 
-
-# In[220]:
-
-
 def merge_apo_holo_df(df):
 	df = df.merge(AH_key, on=['PDB'])
 	df_holo = df[df['Apo_Holo'] == 'Holo']
@@ -56,17 +45,9 @@ def merge_apo_holo_df(df):
 	df_merged = df_merged.drop_duplicates()
 	return df_merged
 
-
-# In[221]:
-
-
 pairs = pd.read_csv('/Users/stephaniewanko/Downloads/temp/recheck/final_qfit_pairs.txt', sep='\t')
 AH_pairs = pairs.drop_duplicates()
 AH_key = create_AH_key(AH_pairs)
-
-
-# In[222]:
-
 
 os.chdir('/Users/stephaniewanko/Downloads/temp/recheck/normalized')
 
@@ -87,26 +68,12 @@ for filename in all_files:
 order_all = pd.concat(li, axis=0, ignore_index=True)
 
 
-# In[223]:
-
-
 order_all = order_all[order_all['PDB'].isin(AH_key['PDB'])]
 order_all = order_all[~order_all['PDB'].isin(pdb_remove)]
 
 
-# In[224]:
-
 
 merged_all = merge_apo_holo_df(order_all)
-
-
-# In[225]:
-
-
-merged_all.head()
-
-
-# In[226]:
 
 
 order_all_sum = pd.DataFrame()
@@ -121,16 +88,6 @@ for i in merged_all['Holo'].unique():
   order_all_sum.loc[n, 'Median'] = merged_all[merged_all['Holo']==i]['s2calc_x'].median()
   n += 1 
 
-
-# In[227]:
-
-
-order_all_sum.head()
-
-
-# In[228]:
-
-
 os.chdir('/Users/stephaniewanko/Downloads/temp/recheck/normalized')
 all_files = glob.glob("*_10.0_order_param_subset.csv")
 li = []
@@ -141,20 +98,12 @@ for filename in all_files:
     li.append(df)
 order_10 = pd.concat(li, axis=0, ignore_index=True)
 
-
-# In[229]:
-
-
 df = order_10.merge(AH_key, on=['PDB'])
 df_holo = df[df['Apo_Holo'] == 'Holo']
 df_apo = df[df['Apo_Holo'] == 'Apo']
 test = df_holo.merge(AH_pairs, left_on='PDB', right_on='Holo')
 df_merged = test.merge(df_apo, left_on=['Apo', 'chain', 'resi'], right_on=['PDB', 'chain', 'resi'])  
 merged_10 = df_merged.drop_duplicates()
-
-
-# In[230]:
-
 
 os.chdir('/Users/stephaniewanko/Downloads/temp/recheck/normalized')
 all_files = glob.glob("*_5.0_order_param_subset.csv")
@@ -166,9 +115,6 @@ for filename in all_files:
 order_5 = pd.concat(li, axis=0, ignore_index=True)
 
 
-# In[231]:
-
-
 df = order_5.merge(AH_key, on=['PDB'])
 df_holo = df[df['Apo_Holo'] == 'Holo']
 df_apo = df[df['Apo_Holo'] == 'Apo']
@@ -176,14 +122,7 @@ test = df_holo.merge(AH_pairs, left_on='PDB', right_on='Holo')
 df_merged = test.merge(df_apo, left_on=['Apo', 'chain', 'resi'], right_on=['PDB', 'chain', 'resi'])  
 merged_5 = df_merged.drop_duplicates()
 
-
-# In[232]:
-
-
 order_far = pd.merge(order_all, order_10, how='left', indicator=True).query("_merge == 'left_only'")
-
-
-# In[233]:
 
 
 df = order_far.merge(AH_key, on=['PDB'])
@@ -192,10 +131,7 @@ df_apo = df[df['Apo_Holo'] == 'Apo']
 test = df_holo.merge(AH_pairs, left_on='PDB', right_on='Holo')
 df_merged = test.merge(df_apo, left_on=['Apo', 'chain', 'resi'], right_on=['PDB', 'chain', 'resi'])  
 merged_far = df_merged.drop_duplicates()
-merged_far.head()
 
-
-# In[234]:
 
 
 merged_far['Difference'] = merged_far['s2calc_x'] - merged_far['s2calc_y']
@@ -204,15 +140,9 @@ merged_10['Difference'] = merged_10['s2calc_x'] - merged_10['s2calc_y']
 merged_all['Difference'] = merged_all['s2calc_x'] - merged_all['s2calc_y']
 
 
-# In[235]:
-
-
 philic =['ASP', 'GLU', 'LYS', 'ARG', 'GLN', 'ASN', 'HIS', 'SER', 'THR', 'CYS']
 phobic =['ALA', 'ILE', 'LEU', 'MET', 'PHE', 'VAL', 'PRO', 'GLY']
 both = ['MET', 'TYR', 'MET']
-
-
-# In[236]:
 
 
 order5_summary = pd.DataFrame()
@@ -230,22 +160,6 @@ for i in merged_all['Holo'].unique():
         order5_summary.loc[n, 'Num_phylic'] = len(tmp2[tmp2['resn_x'].isin(philic)])
         n += 1
 
-
-# In[237]:
-
-
-order5_summary.head()
-
-
-# In[238]:
-
-
-order_5.head()
-
-
-# In[239]:
-
-
 os.chdir('/Users/stephaniewanko/Downloads/temp/recheck/other_files')
 all_files = glob.glob("*_qFit_sasa.csv")
 
@@ -260,28 +174,11 @@ for filename in all_files:
     li.append(df)
 sasa = pd.concat(li, axis=0, ignore_index=True)
 
-
-# In[240]:
-
-
 for index, row in sasa.iterrows():
  	sasa.loc[index,'RSA'] = float(row['ss'])/RES_MAX_ACC[row['aa']]
 
 
-# In[241]:
-
-
 sasa['Solvent_Exposed'] = sasa['RSA'].apply(lambda x: np.where(x < 0.20, 'Not Solved Exposed', 'Solvently Exposed'))
-
-
-# In[242]:
-
-
-sasa.head()
-
-
-# In[243]:
-
 
 order10_summary = pd.DataFrame()
 n = 1
@@ -296,10 +193,6 @@ for i in merged_all['Holo'].unique():
         order10_summary.loc[n, 'Num_residues_10'] = len(tmp2.index)
         n += 1
 
-
-# In[244]:
-
-
 orderall_summary = pd.DataFrame()
 n = 1
 for i in merged_all['Holo'].unique():
@@ -311,9 +204,6 @@ for i in merged_all['Holo'].unique():
     	orderall_summary.loc[n, 'Average_all_diff'] = tmp2['Difference'].mean()
     	orderall_summary.loc[n, 'Average_all_holo_OP'] = tmp2['s2calc_x'].mean()
     	n += 1
-
-
-# In[245]:
 
 
 orderfar_summary = pd.DataFrame()
@@ -329,15 +219,8 @@ for i in merged_far['Holo'].unique():
     	n += 1
 
 
-# In[246]:
-
-
 sasa_exposed = sasa[sasa['Solvent_Exposed']=='Solvently Exposed']
 sasa_notexposed = sasa[sasa['Solvent_Exposed']=='Not Solved Exposed']
-
-
-# In[247]:
-
 
 far_not_solvent = pd.DataFrame()
 for i in merged_far['Holo'].unique():
@@ -345,9 +228,6 @@ for i in merged_far['Holo'].unique():
     tmp_sasa = sasa_notexposed[sasa_notexposed['PDB']==i]
     tmp2 = tmp[tmp['resi'].isin(tmp_sasa['resnum']) & tmp['chain'].isin(tmp_sasa['chain'])]
     far_not_solvent = far_not_solvent.append(tmp2, ignore_index=True)
-
-
-# In[248]:
 
 
 orderfar_solvent_sum = pd.DataFrame()
@@ -364,15 +244,6 @@ for i in far_not_solvent['Holo'].unique():
         n += 1
 
 
-# In[249]:
-
-
-order5_summary.head()
-
-
-# In[250]:
-
-
 combined_summary = orderall_summary.merge(order5_summary, on=['Apo', 'Holo'])
 combined_summary1 = combined_summary.drop_duplicates()
 
@@ -387,14 +258,7 @@ combined_summary['Difference_Holo_all_5'] = combined_summary['Average_all_holo_O
 
 combined_summary = combined_summary[combined_summary['Apo'] !='1uj4']
 
-
-# In[560]:
-
-
 combined_summary.to_csv('combined_summary_paper.csv', index=False)
-
-
-# In[252]:
 
 
 not_sol_far_5 = orderfar_solvent_sum.merge(order5_summary, on=['Apo', 'Holo'])
@@ -403,14 +267,7 @@ not_sol_far_5['Difference_far_5'] = not_sol_far_5['Average_far_diff'] - not_sol_
 not_sol_far_5['Difference_Holo_far_5'] = not_sol_far_5['Average_far_holo_OP'] - not_sol_far_5['Average_5_holo_OP']
 
 
-# In[253]:
-
-
-combined_summary['Difference_far_5'] - combined_summary['Average_5_diff'] 
-
-
-# In[615]:
-
+#combined_summary['Difference_far_5'] - combined_summary['Average_5_diff'] 
 
 #This needs to be pairs
 NN_input_df = pd.DataFrame()
@@ -428,44 +285,21 @@ NN_input_df['Num_distant'] = order10_summary['Num_residues_10']
 NN_input_df['Predict'] = combined_summary['Difference_far_5'] - combined_summary['Average_5_diff'] 
 NN_input_df.head()
 
-
-# In[530]:
-
-
 scaler = StandardScaler()
 NN_input_df[['Average_5', 'Num_phobic', 'Num_phylic', 'Protein_size', 'Median_OP', 'Q1_OP', 'Q3_OP', 'Num_distant']] = scaler.fit_transform(NN_input_df[['Average_5', 'Num_phobic', 'Num_phylic', 'Protein_size', 'Median_OP', 'Q1_OP', 'Q3_OP', 'Num_distant']])
 NN_out = NN_input_df[['Predict', 'PDB']]
 NN_out[['Predict']] = scaler.fit_transform(NN_input_df[['Predict']])
 
 
-# In[616]:
-
-
-NN_input_df.head()
-
-
-# In[550]:
-
-
 #define variables like input size, hidden unit, output size, batch size, and the learning rate.
 n_input, n_hidden, n_out, batch_size, learning_rate = 8, 15, 1, 100, 0.01
-
-
-# In[531]:
 
 
 tmp_x = NN_input_df.drop(['Predict','PDB'], axis =1).values
 tmp_y = NN_out.drop(['PDB'], axis=1).values.reshape(-1,1) 
 
-
-# In[552]:
-
-
 tmp_x_tensor = torch.tensor(tmp_x, dtype=torch.float32)
 tmp_y_tensor = torch.tensor(tmp_y, dtype=torch.float32)
-
-
-# In[553]:
 
 
 def load_array(data_arrays, batch_size, is_train=True):
@@ -474,13 +308,8 @@ def load_array(data_arrays, batch_size, is_train=True):
     return data.DataLoader(dataset, batch_size, shuffle=is_train)
 
 
-# In[610]:
-
-
 data_iter = load_array((tmp_x_tensor, tmp_y_tensor), 20)
 
-
-# In[611]:
 
 
 net = nn.Linear(8, 1)
@@ -491,9 +320,6 @@ loss = nn.MSELoss()
 trainer = torch.optim.SGD(net.parameters(), lr=0.01)
 
 
-# In[612]:
-
-
 net = nn.Sequential(nn.Linear(n_input, 10),
                       nn.ReLU(),
                       nn.Linear(10, 10),
@@ -502,10 +328,7 @@ net = nn.Sequential(nn.Linear(n_input, 10),
                       nn.Sigmoid())
 
 
-# In[613]:
-
-
-num_epochs = 10
+num_epochs = 100
 losses = []
 running_loss = 0.0
 for epoch in range(num_epochs):
@@ -520,28 +343,14 @@ for epoch in range(num_epochs):
  
         trainer.step() # parameter update
         losses.append(l.item())
-        
- 
-        #print(f'epoch {epoch + 1}, loss {l:f}')
-
-
-# In[614]:
+        print(f'epoch {epoch + 1}, loss {l:f}')
 
 
 plt.plot(losses)
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.title("Learning rate %f"%(learning_rate))
-plt.show()
-
-
-# In[ ]:
-
-
-
-
-
-# In[313]:
+#plt.show()
 
 
 class Net(torch.nn.Module):
@@ -565,18 +374,12 @@ class Net(torch.nn.Module):
     return z
 
 
-# In[314]:
-
-
 class Net(torch.nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         self.hid1 = torch.nn.Linear(8, 10)  # 8-(10-10)-1
         self.hid2 = torch.nn.Linear(10, 10)
         self.oupt = torch.nn.Linear(10, 1)
-
-
-# In[272]:
 
 
 class MLP(nn.Module):
@@ -601,26 +404,19 @@ class MLP(nn.Module):
     return self.layers(x)
 
 
-# In[398]:
-
-
 model = nn.Sequential(nn.Linear(n_input, n_hidden),
                       nn.ReLU(),
                       nn.Linear(n_hidden, n_out),
                       nn.Sigmoid())
 
 
-# In[403]:
 
 
-plt.plot(l)
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.title("Learning rate %f"%(learning_rate))
-plt.show()
-
-
-# In[ ]:
+# plt.plot(l)
+# plt.ylabel('loss')
+# plt.xlabel('epoch')
+# plt.title("Learning rate %f"%(learning_rate))
+# plt.show()
 
 
 
